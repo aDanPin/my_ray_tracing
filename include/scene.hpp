@@ -7,34 +7,46 @@
 #include <fstream>
 
 #include "vector.hpp"
+#include "camera.hpp"
+#include "sphere.hpp"
 
 class Scene{
+    private:
+    std::vector<Vec3f> framebuffer;
+    std::vector<Sphere> spheres;
+
     public:
-    size_t width;
-    size_t height;
+    Camera camera;
     std::string path;
 
-    std::vector<Vec3f> framebuffer;
 
-    Scene(size_t w, size_t h,
-          std::string& p): width(w), height(h), path(p){
+    Scene(const Camera &c, const std::string& p): camera(c), path(p){
+        framebuffer = std::vector<Vec3f>(camera.width * camera.height);
 
-        framebuffer = std::vector<Vec3f>(width*height);
-
-        for (size_t j = 0; j<height; j++) {
-            for (size_t i = 0; i<width; i++) {
-                framebuffer[i+j*width] = Vec3f(j/float(height),i/float(width), 0);
+        for (size_t j = 0; j < camera.height; j++) {
+            for (size_t i = 0; i < camera.width; i++) {
+                framebuffer[i + j * camera.width] = Vec3f(j/float(camera.height),
+                                                          i/float(camera.width),
+                                                          0);
             }
         }
+
+    }
+
+    void add(const Sphere& S){
+        spheres.push_back(S);
+    }
+
+    void render() {
 
     }
 
     void write() {
         std::ofstream ofs; // save the framebuffer to file
         ofs.open(path);
-        ofs << "P6\n" << width << " " << height << "\n255\n";
-        for (size_t i = 0; i < height*width; ++i) {
-            for (size_t j = 0; j<3; j++) {
+        ofs << "P6\n" << camera.width << " " << camera.height << "\n255\n";
+        for (size_t i = 0; i < camera.height * camera.width; ++i) {
+            for (size_t j = 0; j < 3; j++) {
                 ofs << (char)(255 * std::max(0.f, std::min(1.f, framebuffer[i][j])));
             }
         }
