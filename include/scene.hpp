@@ -40,18 +40,15 @@ class Scene{
         for (size_t j = 0; j < camera.height; j++) {
             for (size_t i = 0; i < camera.width; i++) {
                 for(auto sp : spheres){
-                    // float x = (i + 0.5)/(float)camera.width;
-                    // float z = (j + 0.5)/(float)camera.height;
-
-                    float z = (camera.height / 2) - j;
-                    float x = (-camera.width / 2) + i;
+                    double z = ((camera.height + 0.5) / 2.) - (double)j;
+                    double x = ((-camera.width + 0.5) / 2.) + (double)i;
 
                     Vec3 dir = Vec3(x, camera.distance, z);
 
                     //framebuffer[i+j*camera.width] = cast_ray(camera.position, dir, sp);
 
                     if (sp.collision(camera.position, dir)){
-                        framebuffer[i+j*camera.width] = {0, 200, 0};
+                        framebuffer[i+j*camera.width] = {0, 0, 200};
                     }
                 }
             }
@@ -64,9 +61,9 @@ class Scene{
         ofs.open(path);
         ofs << "P6\n" << camera.width << " " << camera.height << "\n255\n";
         for (size_t i = 0; i < camera.height * camera.width; ++i) {
-            for (size_t j = 0; j < 3; j++) {
-                ofs << (char)(255 * std::max(0.f, std::min(1.f, framebuffer[i * camera.width + j])));
-            }
+            ofs << (char)(255 * std::max(0., std::min(1., framebuffer[i].x)))
+                << (char)(255 * std::max(0., std::min(1., framebuffer[i].y)))
+                << (char)(255 * std::max(0., std::min(1., framebuffer[i].z)));
         }
         ofs.close();
     }
