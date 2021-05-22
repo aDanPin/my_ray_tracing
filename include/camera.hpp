@@ -6,10 +6,10 @@
 class Camera{
     public:
     int width, height;
-    Vec3f position, direction;
+    Vec3 position, direction;
     float distance;
 
-    Camera(int w, int h, Vec3f p, Vec3f d, float dis):
+    Camera(int w, int h, Vec3 p, Vec3 d, float dis):
         width(w), height(h), position(p), direction(d), distance(dis) {}
 };
 
