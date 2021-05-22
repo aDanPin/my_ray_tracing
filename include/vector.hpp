@@ -22,6 +22,12 @@ class Vec3 {
             first.z + (second.z - first.z)*t
         );
     }
+
+    static double range(const Vec3& first, const Vec3& second){
+        return sqrt((second.x - first.x) * (second.x - first.x) +
+                    (second.y - first.y) * (second.y - first.y) +
+                    (second.z - first.z) * (second.z - first.z));
+    }
 };
 
 Vec3& operator+=( Vec3& left, const Vec3& right) {

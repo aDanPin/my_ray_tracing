@@ -1,19 +1,25 @@
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
 
-#include <math.h>
+#include <cmath>
 #include <limits>
+#include <tuple>
 
+#include "solid.hpp"
 #include "vector.hpp"
 
-class Sphere {
+class Sphere : Solid {
     public:
     Vec3 center;
     double radius;
 
-    Sphere(const Vec3 &c, const double &r) : center(c), radius(r) {}
+    Sphere(const Vec3 &c = Vec3(), const double &r = 0.) : center(c), radius(r) {}
 
-    bool collision(const Vec3& first, const Vec3& second) {
+    Vec3 reflection(const Vec3& first, const Vec3& second) {
+        return Vec3;
+    }
+
+    std::tuple<bool, Vec3> collision(const Vec3& first, const Vec3& second) {
         // сократить расстояние вектора до приемлемых значений (не надо)
         double a = (second.x - first.x) * (second.x - first.x) +
                    (second.y - first.y) * (second.y - first.y) +
@@ -28,10 +34,25 @@ class Sphere {
 
         double D = b*b - 4*a*c;
 
-        if (D >= 0)
-            return true;
-        else
-            return false;
+        if (D >= 0){
+            double t = (-b + std::sqrt(D))/(2*a);
+            Vec3 collision(
+                first.x + (second.x - first.x)*t,
+                first.y + (second.y - first.y)*t,
+                first.z + (second.z - first.z)*t
+            );
+            return std::tuple<double, Vec3>(true, collision);
+        }
+        else{
+            return std::tuple<double, Vec3>(false, Vec3());
+        }
+    }
+};
+
+class LightSphere : public Sphere{
+    public:
+    LightSphere(const Vec3 &c, const double &r){
+        Sphere(c, r);
     }
 };
 
