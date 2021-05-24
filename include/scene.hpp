@@ -57,22 +57,26 @@ class Scene{
         }
         else{
             // find
-            bool getLCollision = false;
+            bool got_l_collision = false;
             Vec3 lCollision;
-            LightSphere* nearLSolid = nullptr;
-            std::tie(lCollision, nearLSolid) = find_neatest<LightSphere>(src, dir, lSpheres);
+            LightSphere* nearLSolid = NULL;
+            std::tie(got_l_collision, lCollision, nearLSolid) =
+                                                    find_neatest<LightSphere>(src, dir, lSpheres);
 
-            if(getLCollision){
-                nearLSolid = nullptr;
+            std::cout << "1 : "<< nearLSolid<<std::endl;
+            if(got_l_collision){
+                std ::cout << "2 : "<< nearLSolid<<std::endl;
+
+                nearLSolid = NULL;
                 return Vec3(256., 256., 256.) * std::pow( 1 - ABSORPTION_COEF, r_depth);
             }
 
-            bool getCollision = false;
+            bool got_collision = false;
             Vec3 collision;
-            Sphere* nearSolid = nullptr;
-            std::tie(collision, nearSolid) = find_neatest<Sphere>(src, dir, spheres);
+            Sphere* nearSolid = NULL;
+            std::tie(got_collision, collision, nearSolid) = find_neatest<Sphere>(src, dir, spheres);
 
-            if(getLCollision){
+            if(got_collision){
                 // продолжить рекурсию
                 // найти новую точку отражения
                 Vec3 reflected = nearSolid->reflection(src, dir, collision);
@@ -85,8 +89,9 @@ class Scene{
 
 
     template <class T>
-    inline std::tuple<Vec3, T*> find_neatest(const Vec3& src, const Vec3& dir,
+    inline std::tuple<bool, Vec3, T*> find_neatest(const Vec3& src, const Vec3& dir,
                                                       const std::vector<T>& solids) {
+        bool flag = false;
         Vec3 collision = Vec3();
         T* near_solid = nullptr;
 
@@ -98,6 +103,7 @@ class Scene{
 
             if(have_collision){
                 double range = Vec3::range(src, collision);
+                flag = true;
                 if (range < min_distance){
                     min_distance = range;
                     near_solid = &solid;
@@ -106,7 +112,7 @@ class Scene{
             }
         }
 
-        return std::make_tuple<Vec3, T*>(std::move(collision), std::move(near_solid));
+        return std::make_tuple<bool, Vec3, T*>(std::move(flag), std::move(collision), std::move(near_solid));
     }
 
     void write() {
