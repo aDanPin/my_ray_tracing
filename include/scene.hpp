@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <memory>
+
 
 #include "vector.hpp"
 #include "camera.hpp"
@@ -21,16 +23,7 @@ class Scene{
     std::string path;
 
     Scene(const Camera &c, const std::string& p): camera(c), path(p){
-        framebuffer = std::vector<Vec3>(camera.width * camera.height);
-
-        for (size_t j = 0; j < camera.height; j++) {
-            for (size_t i = 0; i < camera.width; i++) {
-//                framebuffer[i + j * camera.width] = Vec3(j/float(camera.height),
-//                                                          i/float(camera.width),
-//                                                          0);
-                framebuffer[i + j * camera.width] = Vec3(0, 0, 0);
-            }
-        }
+        framebuffer = std::vector<Vec3>(camera.width * camera.height, Vec3());
     }
 
     void add(const Sphere& S){
@@ -49,11 +42,7 @@ class Scene{
 
                 Vec3 dir = Vec3(x, camera.distance, z);
 
-                framebuffer[i+j*camera.width] = cast_ray(camera.position, dir, 0);
-
-//                if (sp.collision(camera.position, dir)){
-//                    framebuffer[i+j*camera.width] = {0,0, 200};
-//                }
+                framebuffer[i+j*camera.width] = cast_ray(camera.position, dir);
             }
         }
     }
@@ -110,6 +99,16 @@ class Scene{
             near =  nullptr;
             nearL = nullptr;
         }
+    }
+
+
+    template <class T>
+    std::tuple<Vec3, std::unique_ptr<T>> find_neatest(const std::vector<T>& solids) {
+        Vec3 collision;
+        std::unique_ptr<T> near_solid;
+
+
+        return std::tuple<Vec3, std::unique_ptr<T>>(Vec3(), std::make_unique<T>(solids[0]));
     }
 
     void write() {
