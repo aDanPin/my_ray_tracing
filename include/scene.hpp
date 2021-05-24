@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
-
+#include <utility>
 
 #include "vector.hpp"
 #include "camera.hpp"
@@ -56,59 +56,52 @@ class Scene{
         }
         else{
             // find
-            double lRange = std::numeric_limits<double>::max();
-            LightSphere* nearL;
-            for (auto light : lSpheres) {
-                Vec3 collision;
-                bool have_collision;
-                std::tie(have_collision, collision) = light.collision(src, dir);
+            bool getLCollision = false;
+            Vec3 lCollision;
+            LightSphere* nearLSolid = nullptr;
+            std::tie(lCollision, nearLSolid) = find_neatest<LightSphere>(src, dir, lSpheres);
 
-                if(have_collision){
-                    bool r = Vec3::range(src, collision);
-                    if (r < lRange){
-                        lRange = r;
-                        nearL= &light;
-                    }
-                }
+            if(getLCollision){
+                // Закончить рекурсию
             }
 
-            double range = std::numeric_limits<double>::max();
-            Sphere* near;
-            for (auto sphere : spheres) {
-                Vec3 collision;
-                bool have_collision;
-                std::tie(have_collision, collision) = sphere.collision(src, dir);
+            bool getCollision = false;
+            Vec3 collision;
+            Sphere* nearSolid = nullptr;
+            std::tie(collision, nearSolid) = find_neatest<Sphere>(src, dir, spheres);
 
-                if(have_collision){
-                    bool r = Vec3::range(src, collision);
-                    if (r < range){
-                        range = r;
-                        near = &sphere;
-                    }
-                }
+            if(getLCollision){
+                // продолжить рекурсию
             }
 
-            if (lRange < range){
-                // Вернуть вектор
-            } else {
-                // Найти отреженный луч и продолжить поиск
-                Vec3 reflection = nearL->reflection(src, dir);
-            }
-
-
-            near =  nullptr;
-            nearL = nullptr;
+            return Vec3();
         }
     }
 
 
     template <class T>
-    std::tuple<Vec3, std::unique_ptr<T>> find_neatest(const std::vector<T>& solids) {
-        Vec3 collision;
-        std::unique_ptr<T> near_solid;
+    inline std::tuple<Vec3, T*> find_neatest(const Vec3& src, const Vec3& dir,
+                                                      const std::vector<T>& solids) {
+        Vec3 collision = Vec3();
+        T* near_solid = nullptr;
 
+        double min_distance = std::numeric_limits<double>::max();
+        for (auto solid : solids) {
+            Vec3 lcal_collision;
+            bool have_collision;
+            std::tie(have_collision, lcal_collision) = solid.collision(src, dir);
 
-        return std::tuple<Vec3, std::unique_ptr<T>>(Vec3(), std::make_unique<T>(solids[0]));
+            if(have_collision){
+                double range = Vec3::range(src, collision);
+                if (range < min_distance){
+                    min_distance = range;
+                    near_solid = &solid;
+                    collision = lcal_collision;
+                }
+            }
+        }
+
+        return std::make_tuple<Vec3, T*>(std::move(collision), std::move(near_solid));
     }
 
     void write() {
