@@ -15,8 +15,11 @@ class Sphere : Solid {
 
     Sphere(const Vec3 &c = Vec3(), const double &r = 0.) : center(c), radius(r) {}
 
-    Vec3 reflection(const Vec3& first, const Vec3& second) {
-        return Vec3();
+    Vec3 reflection(const Vec3& src, const Vec3& dst, const Vec3& collision) {
+        Vec3 V = dst - src;
+        Vec3 N = collision - center;
+        Vec3 R = -2 * (V* N) ^ N + V;
+        return R;
     }
 
     std::tuple<bool, Vec3> collision(const Vec3& first, const Vec3& second) {

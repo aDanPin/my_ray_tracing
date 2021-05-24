@@ -7,6 +7,7 @@
 #include <fstream>
 #include <memory>
 #include <utility>
+#include <cmath>
 
 #include "vector.hpp"
 #include "camera.hpp"
@@ -62,7 +63,8 @@ class Scene{
             std::tie(lCollision, nearLSolid) = find_neatest<LightSphere>(src, dir, lSpheres);
 
             if(getLCollision){
-                // Закончить рекурсию
+                nearLSolid = nullptr;
+                return Vec3(256., 256., 256.) * std::pow( 1 - ABSORPTION_COEF, r_depth);
             }
 
             bool getCollision = false;
@@ -72,6 +74,9 @@ class Scene{
 
             if(getLCollision){
                 // продолжить рекурсию
+                // найти новую точку отражения
+                Vec3 reflected = nearSolid->reflection(src, dir, collision);
+                return cast_ray(collision, reflected, r_depth + 1);
             }
 
             return Vec3();
