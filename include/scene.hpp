@@ -38,6 +38,8 @@ class Scene{
     void render() {
         for (size_t j = 0; j < camera.height; j++) {
             for (size_t i = 0; i < camera.width; i++) {
+                std::cout<< "1"<<std::endl;
+
                 double z = ((camera.height + 0.5) / 2.) - (double)j;
                 double x = ((-camera.width + 0.5) / 2.) + (double)i;
 
@@ -49,37 +51,44 @@ class Scene{
     }
 
     const int RECURSION_DEPTH = 256;
-    const double ABSORPTION_COEF = 0.02;
+    const double ABSORPTION_COEF = 0.5;
 
     Vec3 cast_ray(const Vec3& src, const Vec3& dir, int r_depth = 0) {
+        std::cout<< "2"<<std::endl;
         if (  r_depth >= RECURSION_DEPTH){
-            return Vec3(256., 256.,256.) * std::pow( 1-ABSORPTION_COEF, r_depth );
+            return Vec3(100., 100.,100.) * std::pow( ABSORPTION_COEF, r_depth );
         }
         else{
             // find
             bool got_l_collision = false;
             Vec3 lCollision;
             LightSphere* nearLSolid = NULL;
+        std::cout<< "2.1"<<std::endl;
+
             std::tie(got_l_collision, lCollision, nearLSolid) =
                                                     find_neatest<LightSphere>(src, dir, lSpheres);
 
-            std::cout << "1 : "<< nearLSolid<<std::endl;
             if(got_l_collision){
-                std ::cout << "2 : "<< nearLSolid<<std::endl;
-
                 nearLSolid = NULL;
-                return Vec3(256., 256., 256.) * std::pow( 1 - ABSORPTION_COEF, r_depth);
+                return Vec3(256., 256., 256.) * std::pow(ABSORPTION_COEF, r_depth);
             }
 
             bool got_collision = false;
             Vec3 collision;
             Sphere* nearSolid = NULL;
+        std::cout<< "2,2"<<std::endl;
+
             std::tie(got_collision, collision, nearSolid) = find_neatest<Sphere>(src, dir, spheres);
+        std::cout<< "2,3"<<std::endl;
 
             if(got_collision){
                 // продолжить рекурсию
                 // найти новую точку отражения
+        std::cout<< "2,4"<<std::endl;
+
                 Vec3 reflected = nearSolid->reflection(src, dir, collision);
+        std::cout<< "2,5"<<std::endl;
+
                 return cast_ray(collision, reflected, r_depth + 1);
             }
 
@@ -91,28 +100,40 @@ class Scene{
     template <class T>
     inline std::tuple<bool, Vec3, T*> find_neatest(const Vec3& src, const Vec3& dir,
                                                       const std::vector<T>& solids) {
-        bool flag = false;
-        Vec3 collision = Vec3();
-        T* near_solid = nullptr;
+        std::cout<< "3"<<std::endl;
 
-        double min_distance = std::numeric_limits<double>::max();
-        for (auto solid : solids) {
-            Vec3 lcal_collision;
-            bool have_collision;
-            std::tie(have_collision, lcal_collision) = solid.collision(src, dir);
+        if (!solids.empty()) {
+            bool flag = false;
+            Vec3 collision = Vec3();
+            T* near_solid = nullptr;
 
-            if(have_collision){
-                double range = Vec3::range(src, collision);
-                flag = true;
-                if (range < min_distance){
-                    min_distance = range;
-                    near_solid = &solid;
-                    collision = lcal_collision;
+            double min_distance = std::numeric_limits<double>::max();
+            for (auto solid : solids) {
+                Vec3 lcal_collision = Vec3(-1, -1 ,-1);
+                bool have_collision = false;
+                std::tie(have_collision, lcal_collision) = solid.collision(src, dir);
+
+                if(have_collision){
+                    double range = Vec3::range(src, lcal_collision);
+        std::cout<< "lcal_collision "<<lcal_collision<<std::endl;
+        std::cout<< "src"<< src<<std::endl;
+
+        std::cout<< "ramge : "<< range<<std::endl;
+
+                    flag = true;
+                    if (range < min_distance){
+                        min_distance = range;
+                        near_solid = &solid;
+                        collision = lcal_collision;
+                    }
                 }
             }
-        }
+            std ::cout << "c : "<<std::endl;
 
-        return std::make_tuple<bool, Vec3, T*>(std::move(flag), std::move(collision), std::move(near_solid));
+            return std::make_tuple<bool, Vec3, T*>(std::move(flag), std::move(collision), std::move(near_solid));
+        } else {
+            return std::make_tuple<bool, Vec3, T*>(std::move(false), std::move(Vec3()), std::move(nullptr));
+        }
     }
 
     void write() {

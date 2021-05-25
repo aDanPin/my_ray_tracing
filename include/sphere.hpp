@@ -22,23 +22,33 @@ class Sphere : Solid {
         return R;
     }
 
-    std::tuple<bool, Vec3> collision(const Vec3& first, const Vec3& second) {
+    virtual std::tuple<bool, Vec3> collision(const Vec3& first, const Vec3& second) {
         // сократить расстояние вектора до приемлемых значений (не надо)
-        double a = (second.x - first.x) * (second.x - first.x) +
-                   (second.y - first.y) * (second.y - first.y) +
-                   (second.z - first.z) * (second.z - first.z);
-        double b = -2*((first.x - center.x) * (second.x - first.x) +
-                       (first.y - center.y) * (second.y - first.y) +
-                       (first.z - center.z) * (second.z - first.z));
-        double c = (first.x - center.x) * (first.x - center.x) +
-                   (first.y - center.y) * (first.y - center.y) +
-                   (first.z - center.z) * (first.z - center.z) -
-                   radius * radius;
 
-        double D = b*b - 4*a*c;
+        Vec3 d = second - first;
+        Vec3 s = radius - first;
 
-        if (D >= 0){
+        double a = d*d;
+        double b = -2*(d*s);
+        double c = s*s - radius*radius;
+
+        double D =  b*b - 4*a*c;
+
             double t = (-b + std::sqrt(D))/(2*a);
+
+            std::cout<< "first: "<< first<<std::endl;
+            std::cout<< "second: "<< second<<std::endl;
+
+            std::cout<< "radius: "<< radius<<std::endl;
+            std::cout<< "center: "<< center<<std::endl;
+
+            std::cout<< "b: "<< b<<std::endl;
+            std::cout<< "D: "<< D<<std::endl;
+            std::cout<< "sqrt D: "<< std::sqrt(D)<<std::endl;
+            std::cout<< "a: "<< a<<std::endl;
+            std::cout<< "T: "<< t<<std::endl;
+
+        if (D > 0){
             Vec3 collision(
                 first.x + (second.x - first.x)*t,
                 first.y + (second.y - first.y)*t,
