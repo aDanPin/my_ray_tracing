@@ -8,6 +8,8 @@
 #include "solid.hpp"
 #include "vector.hpp"
 
+double DELTA = 0.1;
+
 class Sphere : Solid {
     public:
     Vec3 center;
@@ -47,6 +49,8 @@ class Sphere : Solid {
                 first.y + (second.y - first.y)*t,
                 first.z + (second.z - first.z)*t
             );
+
+            collision = collision + (collision - center) * DELTA / Vec3::range(collision, center);
             return std::tuple<double, Vec3>(std::move(true), std::move(collision));
         }
         else{

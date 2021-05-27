@@ -53,10 +53,9 @@ class Scene{
     const double ABSORPTION_COEF = 0.9;
 
     Vec3 cast_ray(const Vec3& src, const Vec3& dir, int r_depth = 0) {
-        std::cout<<1<<std::endl;
         std::cout<<"Depth: "<< r_depth<<std::endl;
         if (  r_depth >= RECURSION_DEPTH){
-            return Vec3(100., 100.,100.) * std::pow( ABSORPTION_COEF, r_depth );
+            return Vec3(100., 100.,100.) * std::pow( 0.02, r_depth );
         }
         else{
             // find
@@ -87,10 +86,11 @@ class Scene{
                 Vec3 reflected  = Vec3(); // = nearSolid->reflection(src, dir, collision);
         std::cout<<4<<std::endl;
 
+        std::cout<<"castRay"<<std::endl;
                 return cast_ray(collision, reflected, r_depth + 1);
             }
 
-            return Vec3(100., 100.,100.) * std::pow( 1 - ABSORPTION_COEF, r_depth );
+            return Vec3(256, 256, 256) * std::pow( 0.8, r_depth );
         }
     }
 
