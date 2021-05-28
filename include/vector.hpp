@@ -28,6 +28,7 @@ class Vec3 {
                     (second.y - first.y) * (second.y - first.y) +
                     (second.z - first.z) * (second.z - first.z));
     }
+
 };
 
 Vec3& operator+=( Vec3& left, const Vec3& right) {
@@ -62,14 +63,14 @@ const Vec3 operator-(const Vec3& left, const Vec3& right) {
 
 // Скалярное произведение
 const double operator *(const Vec3& left, const Vec3& right) {
-    return left.x * right.x + left.y * right.y + left.z + right.z;
+    return left.x * right.x + left.y * right.y + left.z * right.z;
 }
 
 // Векторное произведение
 const Vec3 operator ^(const Vec3& left, const Vec3& right) {
-    return Vec3(left.y * right.z - left.z * right.y,
-                left.z * right.x - left.x * right.z,
-                left.x * right.y - left.y * right.x);
+    return -Vec3(left.y * right.z - left.z * right.y,
+                 left.z * right.x - left.x * right.z,
+                 left.x * right.y - left.y * right.x);
 }
 
 // // Произведение на костанту
@@ -92,5 +93,37 @@ std::ostream& operator<<(std::ostream& out, const Vec3& v) {
     out << v.x << " " << v.y <<" "<< v.z << " ";
     return out;
 }
+
+void Vec3test() {
+    Vec3 first ( 8, 8, 8);
+    Vec3 second ( 16, 8, 4);
+
+    std::cout<< first << ' ' << second << std::endl;
+    std::cout<< "Test +" << std::endl;
+    std::cout<< "Should be: "<< 24 << ", "<< 16<< ", "<< 12 << std::endl;
+    std::cout<< "Ans:       " << first + second << std::endl;
+
+    std::cout<< "Test -" << std::endl;
+    std::cout<< "Should be: "<< 8 << ", "<< 0<< ", "<< -4 << std::endl;
+    std::cout<< "Ans:       " << second - first << std::endl;
+
+    std::cout<< "Test *" << std::endl;
+    std::cout<< "Should be: "<< 224 << std::endl;
+    std::cout<< "Ans:       " << second * first << std::endl;
+
+    std::cout<< "Test ^" << std::endl;
+    std::cout<< "Should be: "<< -32 << ", "<< 96<<", "<< -64 << std::endl;
+    std::cout<< "Ans:       " << (second ^ first) << std::endl;
+
+    std::cout<< "Test *const" << std::endl;
+    std::cout<< "Should be: "<< -32 << ", "<< -16<<", "<< -8 << std::endl;
+    std::cout<< "Ans:       " << second * (-2) << std::endl;
+
+    std::cout<< "Test /const" << std::endl;
+    std::cout<< "Should be: "<< -8 << ", "<< -4<<", "<< -2 << std::endl;
+    std::cout<< "Ans:       " << second / (-2) << std::endl;
+
+}
+
 
 #endif // VECTOR_HPP
