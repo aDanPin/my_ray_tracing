@@ -18,8 +18,6 @@ class Sphere : Solid {
     Sphere(const Vec3 &c = Vec3(), const double &r = 0.) : center(c), radius(r) {}
 
     Vec3 reflection(const Vec3& src, const Vec3& dst, const Vec3& collision) {
-        std::cout<<"3.1"<<std::endl;
-
         Vec3 V = dst - src;
         Vec3 N = collision - center;
         Vec3 R = -2 * (V* N) ^ N + V;
@@ -50,7 +48,7 @@ class Sphere : Solid {
                 first.z + (second.z - first.z)*t
             );
 
-            collision = collision + (collision - center) * DELTA / Vec3::range(collision, center);
+            // collision = collision + (collision - center) * DELTA / Vec3::range(collision, center);
             return std::tuple<double, Vec3>(std::move(true), std::move(collision));
         }
         else{
@@ -61,8 +59,7 @@ class Sphere : Solid {
 
 class LightSphere : public Sphere{
     public:
-    LightSphere(const Vec3 &c, const double &r){
-        Sphere(c, r);
+    LightSphere(const Vec3 &c, const double &r) : Sphere(c, r){
     }
 };
 

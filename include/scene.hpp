@@ -24,7 +24,7 @@ class Scene{
     std::string path;
 
     Scene(const Camera &c, const std::string& p): camera(c), path(p){
-        framebuffer = std::vector<Vec3>(camera.width * camera.height, Vec3(125, 0, 0));
+        framebuffer = std::vector<Vec3>(camera.width * camera.height, Vec3());
     }
 
     void add(const Sphere& S){
@@ -42,15 +42,17 @@ class Scene{
                 double x = ((-camera.width + 0.5) / 2.) + (double)i;
 
                 Vec3 dir = Vec3(x, camera.distance, z);
-            std::cout<<"I: "<< i<<" J: "<<j<<std::endl;
 
                 framebuffer[i+j*camera.width] = cast_ray(camera.position, dir);
+            std::cout<<"I: "<< i<<" J: "<<j<<std::endl;
+            // std::cout<<framebuffer[i+j*camera.width]<<std::endl;
+
             }
         }
     }
 
-    const int RECURSION_DEPTH = 256;
-    const double ABSORPTION_COEF = 0.9;
+    const int RECURSION_DEPTH = 255;
+    const double ABSORPTION_COEF = 0.02;
 
     Vec3 cast_ray(const Vec3& src, const Vec3& dir, int r_depth = 0) {
         std::cout<<"Depth: "<< r_depth<<std::endl;
@@ -68,7 +70,8 @@ class Scene{
 
             if(got_l_collision){
                 nearLSolid = 0;
-                return Vec3(256., 256., 256.) * std::pow(ABSORPTION_COEF, r_depth);
+                // return Vec3(256., 256., 256.) * std::pow(ABSORPTION_COEF, r_depth);
+                return Vec3(0., 0., 255.) * std::pow(ABSORPTION_COEF, r_depth);
             }
 
             bool got_collision = false;
@@ -80,17 +83,16 @@ class Scene{
             if(got_collision){
                 // продолжить рекурсию
                 // найти новую точку отражения
-        std::cout<<3<<std::endl;
-        std::cout<<"Returned solid ptr: "<< nearSolid  <<std::endl;
-
-                Vec3 reflected  = Vec3(); // = nearSolid->reflection(src, dir, collision);
-        std::cout<<4<<std::endl;
-
-        std::cout<<"castRay"<<std::endl;
+                Vec3 reflected  = spheres[nearSolid].reflection(src, dir, collision);
                 return cast_ray(collision, reflected, r_depth + 1);
             }
 
-            return Vec3(256, 256, 256) * std::pow( 0.8, r_depth );
+            if ( r_depth == 0){
+                return Vec3(10, 90, 10);
+            } else {
+                Vec3 ans = Vec3(255., 255., 255.) * std::pow( ABSORPTION_COEF, r_depth );
+                return Vec3();
+            }
         }
     }
 
@@ -98,8 +100,6 @@ class Scene{
     template <class T>
     inline std::tuple<bool, Vec3, size_t> find_neatest(const Vec3& src, const Vec3& dir,
                                                       const std::vector<T>& solids) {
-        std::cout<<2<<std::endl;
-
         if (!solids.empty()) {
             bool flag = false;
             Vec3 collision = Vec3();
@@ -119,8 +119,6 @@ class Scene{
                         min_distance = range;
                         near_solid = i;
                         collision = lcal_collision;
-        std::cout<<"Solid ptr: "<<near_solid<<std::endl;
-
                     }
                 }
             }

@@ -73,11 +73,6 @@ const Vec3 operator ^(const Vec3& left, const Vec3& right) {
                  left.x * right.y - left.y * right.x);
 }
 
-// // Произведение на костанту
-// const Vec3 operator *(const Vec3& left) {
-//     return Vec3(left);
-// }
-
 // Произведение на костанту
 const Vec3 operator *(const Vec3& left, const double& c) {
     return Vec3(left.x * c, left.y * c, left.z * c);
