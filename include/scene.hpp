@@ -24,7 +24,18 @@ class Scene{
     std::string path;
 
     Scene(const Camera &c, const std::string& p): camera(c), path(p){
-        framebuffer = std::vector<Vec3>(camera.width * camera.height, Vec3());
+        framebuffer = std::vector<Vec3>(camera.width * camera.height, Vec3(10., 5, 0));
+//        for (size_t j = 0; j < camera.height; j++) {
+//            for (size_t i = 0; i < camera.width; i++) {
+//                framebuffer[i+j*camera.width] = Vec3(
+//                    255. * j ,
+//                    255. * j ,
+//                    255. * j
+//                );
+//
+//                std::cout << 255. * i / camera.width << std::endl;
+//            }
+//        }
     }
 
     void add(const Sphere& S){
@@ -43,21 +54,27 @@ class Scene{
 
                 Vec3 dir = Vec3(x, camera.distance, z);
 
-                framebuffer[i+j*camera.width] = cast_ray(camera.position, dir);
-            std::cout<<"I: "<< i<<" J: "<<j<<std::endl;
-            // std::cout<<framebuffer[i+j*camera.width]<<std::endl;
+                Vec3 pixel = cast_ray(camera.position, dir);
 
+                if (pixel != Vec3(-1, -1, -1)) {
+                    framebuffer[i+j*camera.width] = pixel;
+                    std::cout<<framebuffer[i+j*camera.width]<<std::endl;
+                }
+
+            // std::cout<<"I: "<< i<<" J: "<<j<<std::endl;
             }
         }
     }
 
     const int RECURSION_DEPTH = 255;
-    const double ABSORPTION_COEF = 0.02;
+    const double ABSORPTION_COEF = 0.1;
+    const Vec3 LIGHT_VECTOR = Vec3(200, 200, 200);
+
 
     Vec3 cast_ray(const Vec3& src, const Vec3& dir, int r_depth = 0) {
-        std::cout<<"Depth: "<< r_depth<<std::endl;
+        // std::cout<<"Depth: "<< r_depth<<std::endl;
         if (  r_depth >= RECURSION_DEPTH){
-            return Vec3(100., 100.,100.) * std::pow( 0.02, r_depth );
+            return LIGHT_VECTOR * std::pow( ABSORPTION_COEF, r_depth );
         }
         else{
             // find
@@ -71,7 +88,11 @@ class Scene{
             if(got_l_collision){
                 nearLSolid = 0;
                 // return Vec3(256., 256., 256.) * std::pow(ABSORPTION_COEF, r_depth);
-                return Vec3(0., 0., 255.) * std::pow(ABSORPTION_COEF, r_depth);
+                if (r_depth != 0) {
+                    return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth + 1);
+                } else {
+                    return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth);
+                }
             }
 
             bool got_collision = false;
@@ -84,13 +105,16 @@ class Scene{
                 // продолжить рекурсию
                 // найти новую точку отражения
                 Vec3 reflected  = spheres[nearSolid].reflection(src, dir, collision);
+                //std::cout<< "Reflection: from" << std::endl;
+                //std::cout << collision.x << ' '<< collision.y << ' '<< collision.z << ' ' << std::cout;
+                //std::cout << Vec3()<< std::endl;
                 return cast_ray(collision, reflected, r_depth + 1);
             }
 
-            if ( r_depth == 0){
-                return Vec3(10, 90, 10);
+            if (r_depth == 0){
+                return Vec3(-1, -1, -1);
             } else {
-                Vec3 ans = Vec3(255., 255., 255.) * std::pow( ABSORPTION_COEF, r_depth );
+                Vec3 ans = LIGHT_VECTOR * std::pow( ABSORPTION_COEF, r_depth );
                 return Vec3();
             }
         }

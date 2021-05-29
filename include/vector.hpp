@@ -84,6 +84,13 @@ const Vec3 operator /(const Vec3& left, const double& c) {
     return Vec3(left.x * f, left.y * f, left.z * f);
 }
 
+bool operator !=(const Vec3& left, const Vec3& right) {
+    return left.x != right.x ||
+           left.y != right.y ||
+           left.z != right.z;
+}
+
+
 std::ostream& operator<<(std::ostream& out, const Vec3& v) {
     out << v.x << " " << v.y <<" "<< v.z << " ";
     return out;
