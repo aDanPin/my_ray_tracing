@@ -24,18 +24,16 @@ class Scene{
     std::string path;
 
     Scene(const Camera &c, const std::string& p): camera(c), path(p){
-        framebuffer = std::vector<Vec3>(camera.width * camera.height, Vec3(10., 5, 0));
-//        for (size_t j = 0; j < camera.height; j++) {
-//            for (size_t i = 0; i < camera.width; i++) {
-//                framebuffer[i+j*camera.width] = Vec3(
-//                    255. * j ,
-//                    255. * j ,
-//                    255. * j
-//                );
-//
-//                std::cout << 255. * i / camera.width << std::endl;
-//            }
-//        }
+        framebuffer = std::vector<Vec3>(camera.width * camera.height);
+        for (size_t j = 0; j < camera.height; j++) {
+            for (size_t i = 0; i < camera.width; i++) {
+                framebuffer[i+j*camera.width] = Vec3(
+                    255. * (camera.height - j) / camera.height,
+                    255. * (camera.height - j) / camera.height,
+                    255. * (camera.height - j) / camera.height
+                );
+            }
+        }
     }
 
     void add(const Sphere& S){
@@ -67,8 +65,8 @@ class Scene{
     }
 
     const int RECURSION_DEPTH = 255;
-    const double ABSORPTION_COEF = 0.1;
-    const Vec3 LIGHT_VECTOR = Vec3(200, 200, 200);
+    const double ABSORPTION_COEF = 0.5;
+    const Vec3 LIGHT_VECTOR = Vec3(255, 255, 255);
 
 
     Vec3 cast_ray(const Vec3& src, const Vec3& dir, int r_depth = 0) {
@@ -87,12 +85,7 @@ class Scene{
 
             if(got_l_collision){
                 nearLSolid = 0;
-                // return Vec3(256., 256., 256.) * std::pow(ABSORPTION_COEF, r_depth);
-                if (r_depth != 0) {
-                    return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth + 1);
-                } else {
-                    return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth);
-                }
+                return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth);
             }
 
             bool got_collision = false;
@@ -158,9 +151,14 @@ class Scene{
         ofs.open(path);
         ofs << "P6\n" << camera.width << " " << camera.height << "\n255\n";
         for (size_t i = 0; i < camera.height * camera.width; ++i) {
-            ofs << (char)(255 * std::max(0., std::min(1., framebuffer[i].x)))
-                << (char)(255 * std::max(0., std::min(1., framebuffer[i].y)))
-                << (char)(255 * std::max(0., std::min(1., framebuffer[i].z)));
+            std::cout << framebuffer[i] << std::endl;
+            // ofs << (char)(255 * std::max(0., std::min(1., framebuffer[i].x)))
+            //     << (char)(255 * std::max(0., std::min(1., framebuffer[i].y)))
+            //     << (char)(255 * std::max(0., std::min(1., framebuffer[i].z)));
+            ofs << (char)(std::trunc(framebuffer[i].x))
+                << (char)(std::trunc(framebuffer[i].y))
+                << (char)(std::trunc(framebuffer[i].z));
+
         }
         ofs.close();
     }
