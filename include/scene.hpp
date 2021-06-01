@@ -79,43 +79,49 @@ class Scene{
             bool got_l_collision = false;
             Vec3 lCollision;
             size_t nearLSolid = 0;
+            double distanceL = 0.;
 
-            std::tie(got_l_collision, lCollision, nearLSolid) =
+            std::tie(got_l_collision, lCollision, nearLSolid, distanceL) =
                                                     find_neatest<LightSphere>(src, dir, lSpheres);
 
-            if(got_l_collision){
-                nearLSolid = 0;
-                return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth);
-            }
 
             bool got_collision = false;
             Vec3 collision;
             size_t nearSolid = 0;
+            double distance = 0.;
 
-            std::tie(got_collision, collision, nearSolid) = find_neatest<Sphere>(src, dir, spheres);
+            std::tie(got_collision, collision, nearSolid, distance) = find_neatest<Sphere>(src, dir, spheres);
 
-            if(got_collision){
-                // продолжить рекурсию
-                // найти новую точку отражения
+            if (got_l_collision && got_collision) {
+                if (distance < distanceL) {
+                    // do reflection
+                    Vec3 reflected  = spheres[nearSolid].reflection(src, dir, collision);
+                    return cast_ray(collision, reflected, r_depth + 1);
+                } else {
+                    // return lith
+                    return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth);
+                }
+            } else if (got_collision) {
+
                 Vec3 reflected  = spheres[nearSolid].reflection(src, dir, collision);
-                //std::cout<< "Reflection: from" << std::endl;
-                //std::cout << collision.x << ' '<< collision.y << ' '<< collision.z << ' ' << std::cout;
-                //std::cout << Vec3()<< std::endl;
-                return cast_ray(collision, reflected, r_depth + 1);
-            }
 
-            if (r_depth == 0){
-                return Vec3(-1, -1, -1);
+                return cast_ray(collision, reflected, r_depth + 1);
+            } else if (got_l_collision) {
+                return LIGHT_VECTOR * std::pow(ABSORPTION_COEF, r_depth);
             } else {
-                Vec3 ans = LIGHT_VECTOR * std::pow( ABSORPTION_COEF, r_depth );
-                return Vec3();
+                if (r_depth == 0){
+                    return Vec3(-1, -1, -1);
+                } else {
+                    Vec3 ans = LIGHT_VECTOR * std::pow( ABSORPTION_COEF, r_depth );
+                    return Vec3();
+                }
             }
         }
     }
 
 
     template <class T>
-    inline std::tuple<bool, Vec3, size_t> find_neatest(const Vec3& src, const Vec3& dir,
+    inline std::tuple<bool, Vec3, size_t, double> find_neatest(const Vec3& src, const Vec3& dir,
                                                       const std::vector<T>& solids) {
         if (!solids.empty()) {
             bool flag = false;
@@ -140,9 +146,10 @@ class Scene{
                 }
             }
 
-            return std::make_tuple<bool, Vec3, size_t>(std::move(flag), std::move(collision), std::move(near_solid));
+            return std::make_tuple<bool, Vec3, size_t>(std::move(flag), std::move(collision), std::move(near_solid),
+                                                       min_distance);
         } else {
-            return std::make_tuple<bool, Vec3, size_t>(std::move(false), std::move(Vec3()), std::move(0));
+            return std::make_tuple<bool, Vec3, size_t>(std::move(false), std::move(Vec3()), std::move(0), 0.);
         }
     }
 

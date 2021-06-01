@@ -23,10 +23,11 @@ int main(){
     Scene scene(camera, path);
 
     // Sun
-    scene.add(LightSphere(Vec3(0, 256 + 40, 50), 5));
+    scene.add(LightSphere(Vec3(0, 256 + 40, 0), 35));
 
-    scene.add(Sphere(Vec3(-40, 256 + 40, -60), 40));
-    scene.add(Sphere(Vec3( 40, 256 + 40, -60), 40));
+    scene.add(Sphere(Vec3(-50, 256 + 60, -70), 40));
+    scene.add(Sphere(Vec3( 50, 256 + 40,  70), 40));
+    scene.add(Sphere(Vec3( 60, 256 + 30, -80), 40));
 
     scene.render();
     scene.write();
