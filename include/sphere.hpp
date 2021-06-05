@@ -18,45 +18,38 @@ class Sphere : Solid {
     Sphere(const Vec3 &c = Vec3(), const double &r = 0.) : center(c), radius(r) {}
 
     Vec3 reflection(const Vec3& src, const Vec3& dst, const Vec3& collision) {
-        Vec3 V = dst - src;
-        Vec3 N = collision - center;
-        Vec3 R = -2 * (V* N) ^ N + V;
+        Vec3 ri = approx(dst - src, 1);
+        Vec3 n = approx(collision - center, 1);
 
-        std::cout << "Reflection: from"  << collision << "to: "<< R<< std::endl;
+        std::cout << std::endl
+                  <<"collision  : " << collision  << std::endl;
+        std::cout <<"norm       : " << n << std::endl;
+        std::cout <<"ri         : " << ri << std::endl;
+        std::cout <<"mult       : " << -(ri * n)  << std::endl;
 
-        return R;
+//        double dd = dot(ri, n);
+//         if (n * ri > 0)
+//             return n;
+
+        // Срочно научиться перегружать операторы!!
+        Vec3 a = ri -  n * 2 * (n * ri);
+
+        return a;
     }
 
+    const double BE_BEGGER = 0.005;
+
     virtual std::tuple<bool, Vec3> collision(const Vec3& src, const Vec3& dir) const {
-        // сократить расстояние вектора до приемлемых значений (не надо)
-/*
-        Vec3 s = center - src;
+        bool collision_was = false;
+        Vec3 collision = Vec3();
+
+        Vec3 S = src - center;
         Vec3 d = dir - src;
-
-        // d - единичный вектор?
-        Vec3 a = d * d;
-        Vec3 b = -2*(d^s);
-        Vec3 c = s*s - radius*radius;
-
-//        Vec3 D = 4( (d^s)*(d^s) - d*d*(s*s - radius*radius));
-        double D = b*b - 4*a*c;
-
-        std::cout<< "D: " << D<<std::endl;
-        if (D >= 0) {
-            double t = (-a - std::sqrt(D))/ 4*a*c;
-
-            Vec3 collision = src + d*t;
-            return std::tuple<double, Vec3>(std::move(true), std::move(collision));
-        }
-        else{
-            return std::tuple<double, Vec3>(std::move(false),std::move( Vec3()));
-        }
-*/
 
         double a = (dir.x - src.x) * (dir.x - src.x) +
                    (dir.y - src.y) * (dir.y - src.y) +
                    (dir.z - src.z) * (dir.z - src.z);
-        double b = -2*((src.x - center.x) * (dir.x - src.x) +
+        double b = 2*((src.x - center.x) * (dir.x - src.x) +
                        (src.y - center.y) * (dir.y - src.y) +
                        (src.z - center.z) * (dir.z - src.z));
         double c = (src.x - center.x) * (src.x - center.x) +
@@ -66,19 +59,21 @@ class Sphere : Solid {
 
         double D = b*b - 4*a*c;
 
-        double t = (-b + std::sqrt(D))/(2*a);
-        if (D >= 0){
-            Vec3 collision(
-                -(src.x + (dir.x - src.x)*t),
-                -(src.y + (dir.y - src.y)*t),
-                -(src.z + (dir.z - src.z)*t)
-            );
+        if (D >= 0) {
+            double t1 = (-b - std::sqrt(D)) / (2*a);
 
-            // collision = collision + (collision - center) * DELTA / Vec3::range(collision, center);
-            return std::tuple<double, Vec3>(std::move(true), std::move(collision));
-        }
-        else{
-            return std::tuple<double, Vec3>(std::move(false),std::move( Vec3()));
+        std::cout <<"T : " << t1 << std::endl;
+
+            if (t1 > 0) {
+                collision_was = true;
+                collision = src + d * t1;
+
+                // collision = center + (collision - center) * (1 + radius * BE_BEGGER);
+
+                return std::make_tuple<bool, Vec3>(std::move(collision_was), std::move(collision));
+            }
+        } else {
+            return std::make_tuple<bool, Vec3>(std::move(collision_was), std::move(collision));
         }
     }
 
