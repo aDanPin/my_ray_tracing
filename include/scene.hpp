@@ -80,15 +80,14 @@ class Scene{
     }
 
     const int RECURSION_DEPTH = 255;
-    const double ABSORPTION_COEF = 0.5;
+    const double ABSORPTION_COEF = 0.65;
     const Vec3 LIGHT_VECTOR = Vec3(255, 255, 255);
     const double MIN_DELTA =  0.001;
     const double MAX_DOUBLE = std::numeric_limits<double>::max();
 
     Vec3 cast_ray(const Vec3& src, const Vec3& dir, int r_depth = 0, int do_not_touch = -1) {
-        std::cout<<"Depth: "<< r_depth<<std::endl;
         if (  r_depth >= RECURSION_DEPTH){
-            return Vec3(0, 255,0); // * std::pow( ABSORPTION_COEF, r_depth );
+            return Vec3(100, 100, 100) * std::pow(ABSORPTION_COEF, r_depth);
         }
         else{
             bool light_collision_was;
@@ -124,7 +123,7 @@ class Scene{
             if ( r_depth == 0)
                 return Vec3(-1, -1, -1);
             else
-                return Vec3(0, 0, 255) * std::pow(ABSORPTION_COEF, r_depth);
+                return Vec3(200, 200, 200) * std::pow(ABSORPTION_COEF, r_depth);
         }
     }
 
