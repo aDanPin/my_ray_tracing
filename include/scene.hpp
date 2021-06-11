@@ -28,12 +28,11 @@ class Scene{
         framebuffer = std::vector<Vec3>(camera.width * camera.height);
         for (size_t j = 0; j < camera.height; j++) {
             for (size_t i = 0; i < camera.width; i++) {
-                //framebuffer[i+j*camera.width] = Vec3(
-                //    255. * (camera.height - j) / camera.height,
-                //    255. * (camera.height - j) / camera.height,
-                //    255. * (camera.height - j) / camera.height
-                //);
-                framebuffer[i+j*camera.width] = Vec3(255, 0, 0);
+                framebuffer[i+j*camera.width] = Vec3(
+                    255. * (camera.height - j) / camera.height,
+                    255. * (camera.height - j) / camera.height,
+                    255. * (camera.height - j) / camera.height
+                );
             }
         }
     }
@@ -49,8 +48,6 @@ class Scene{
     void render() {
         for (int j = 0; j < camera.height; j++) {
             for (int i = 0; i < camera.width; i++) {
-              //  std::cout<<"I: "<< i<<" J: "<<j<<std::endl;
-
                 std::vector<Vec3> pixels;
 
                 for (int ii = 0; ii < 4; ii ++) {
@@ -68,7 +65,6 @@ class Scene{
 
                         if (pixel != Vec3(-1, -1, -1)) {
                             pixels.push_back(pixel);
-                        // std::cout<<framebuffer[i+j*camera.width]<<std::endl;
                         }
                     }
                 }
@@ -79,7 +75,6 @@ class Scene{
 
                 result_pixel = result_pixel / pixels.size();
                 framebuffer[i+j*camera.width] = result_pixel;
-
             }
         }
     }
@@ -96,8 +91,6 @@ class Scene{
             return Vec3(0, 255,0); // * std::pow( ABSORPTION_COEF, r_depth );
         }
         else{
-            // see collisions
-            // light object collisions
             bool light_collision_was;
             Vec3 light_collision;
             size_t light_num;
@@ -156,11 +149,6 @@ class Scene{
                 if (local_collision_was) {
                     double local_distance =  Vec3::range(src, local_collision);
                     if (local_distance < distance) {
-        // std::cout << "local  dist: " << local_distance << std::endl;
-        // std::cout << "common dist: " << distance << std::endl;
-        // std::cout << "src        : " << src << std::endl;
-        // std::cout << "collision  : " << collision << std::endl;
-
                         collision_was = true;
                         distance = local_distance;
                         collision = local_collision;
@@ -174,11 +162,10 @@ class Scene{
     }
 
     void write() {
-        std::ofstream ofs; // save the framebuffer to file
+        std::ofstream ofs;
         ofs.open(path);
         ofs << "P6\n" << camera.width << " " << camera.height << "\n255\n";
         for (size_t i = 0; i < camera.height * camera.width; ++i) {
-            // std::cout << framebuffer[i] << std::endl;
             ofs << (char)(std::trunc(framebuffer[i].x))
                 << (char)(std::trunc(framebuffer[i].y))
                 << (char)(std::trunc(framebuffer[i].z));

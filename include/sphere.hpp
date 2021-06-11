@@ -19,25 +19,12 @@ class Sphere : Solid {
 
     Vec3 reflection(const Vec3& src, const Vec3& dst, const Vec3& collision) {
         Vec3 ri = approx(dst - src, 1);
-        Vec3 n = approx(collision - center, 1);
+        Vec3 n  = approx(collision - center, 1);
 
-        std::cout << std::endl
-                  <<"collision  : " << collision  << std::endl;
-        std::cout <<"norm       : " << n << std::endl;
-        std::cout <<"ri         : " << ri << std::endl;
-        std::cout <<"mult       : " << -(ri * n)  << std::endl;
-
-//        double dd = dot(ri, n);
-//         if (n * ri > 0)
-//             return n;
-
-        // Срочно научиться перегружать операторы!!
         Vec3 a = ri -  n * 2 * (n * ri);
 
         return a;
     }
-
-    const double BE_BEGGER = 0.005;
 
     virtual std::tuple<bool, Vec3> collision(const Vec3& src, const Vec3& dir) const {
         bool collision_was = false;
@@ -62,13 +49,17 @@ class Sphere : Solid {
         if (D >= 0) {
             double t1 = (-b - std::sqrt(D)) / (2*a);
 
-        std::cout <<"T : " << t1 << std::endl;
-
             if (t1 > 0) {
                 collision_was = true;
                 collision = src + d * t1;
 
-                // collision = center + (collision - center) * (1 + radius * BE_BEGGER);
+                return std::make_tuple<bool, Vec3>(std::move(collision_was), std::move(collision));
+            }
+
+            double t2 = (-b + std::sqrt(D)) / (2*a);
+            if (t2 > 0) {
+                collision_was = true;
+                collision = src + d * t2;
 
                 return std::make_tuple<bool, Vec3>(std::move(collision_was), std::move(collision));
             }
