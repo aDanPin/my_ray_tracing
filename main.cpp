@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include "vector.hpp"
+#include <chrono>
 
 //       z
 //       ^
@@ -32,6 +33,12 @@ int main(){
     scene.add(Sphere(Vec3(-100, 1024 + 100, -100), 50));
     scene.add(Sphere(Vec3(0, 1024 + 100, 0), 100));
 
+    auto start = std::chrono::steady_clock::now();
     scene.render();
+    auto end = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    std::cout << "Rendering time: " << elapsed.count() << std::endl;
+
     scene.write();
 }

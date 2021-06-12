@@ -10,6 +10,8 @@
 #include <cmath>
 #include <limits>
 
+#include <omp.h>
+
 #include "vector.hpp"
 #include "camera.hpp"
 #include "sphere.hpp"
@@ -45,17 +47,21 @@ class Scene{
         lSpheres.push_back(S);
     }
 
+    const int RAY_IN_PIXEL = 8;
+
     void render() {
+        #pragma omp parallel for
         for (int j = 0; j < camera.height; j++) {
+            #pragma omp parallel for
             for (int i = 0; i < camera.width; i++) {
                 std::vector<Vec3> pixels;
 
-                for (int ii = 0; ii < 4; ii ++) {
-                    for (int jj = 0; jj < 4; jj ++) {
+                for (int ii = 0; ii < RAY_IN_PIXEL; ii ++) {
+                    for (int jj = 0; jj < RAY_IN_PIXEL; jj ++) {
                         double x = (camera.width / 2) *
-                                    ((double)(i - camera.width/2) / (camera.width / 2)) + (ii/4);
+                                    ((double)(i - camera.width/2) / (camera.width / 2)) + (ii/RAY_IN_PIXEL);
                         double z = (camera.height / 2) *
-                                    ((double)(camera.height/2 - j) / (camera.height / 2)) + (jj/4);
+                                    ((double)(camera.height/2 - j) / (camera.height / 2)) + (jj/RAY_IN_PIXEL);
 
                         Vec3 stc = camera.position;
                         Vec3 dir =  Vec3(x, camera.distance, z);
@@ -71,7 +77,7 @@ class Scene{
 
                 Vec3 result_pixel(0,0,0);
                 for(int ii = 0; ii < pixels.size(); ii++)
-                    result_pixel = result_pixel + (Vec3)pixels[ii];
+                    result_pixel = result_pixel + pixels[ii];
 
                 result_pixel = result_pixel / pixels.size();
                 framebuffer[i+j*camera.width] = result_pixel;
