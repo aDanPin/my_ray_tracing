@@ -17,3 +17,54 @@ P:
 6 - 4453
 7 - 6666
 8 - 7991
+
+NP
+Spheres on scene : 16
+Rendering time: 447
+
+Spheres on scene : 32
+Rendering time: 774
+
+Spheres on scene : 48
+Rendering time: 1137
+
+Spheres on scene : 64
+Rendering time: 1522
+
+Spheres on scene : 80
+Rendering time: 1908
+
+Spheres on scene : 96
+Rendering time: 2268
+
+Spheres on scene : 112
+Rendering time: 2646
+
+Spheres on scene : 128
+Rendering time: 3024
+
+PAR
+Spheres on scene : 16
+Rendering time: 192
+
+Spheres on scene : 32
+Rendering time: 317
+
+Spheres on scene : 48
+Rendering time: 469
+
+Spheres on scene : 64
+Rendering time: 629
+
+Spheres on scene : 80
+Rendering time: 770
+
+Spheres on scene : 96
+Rendering time: 920
+
+Spheres on scene : 112
+Rendering time: 1068
+
+Spheres on scene : 128
+Rendering time: 1210
+
